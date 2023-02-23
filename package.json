@@ -2,17 +2,27 @@
   "name": "remind",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "npm run "
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArgosKnight/remind.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ArgosKnight/remind/issues"
+  },
+  "homepage": "https://github.com/ArgosKnight/remind#readme",
   "dependencies": {
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "git": "^0.1.5",
-    "mongodb": "^5.0.1",
-    "node": "^19.6.0"
+    "mongoose": "^6.10.0",
+    "nodemon": "^2.0.20",
+    "router": "^1.3.7"
   }
 }
