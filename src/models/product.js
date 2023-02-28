@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 //Schema
 const Product = mongoose.model('Product',{
-    _id:{
+    id:{
         type: ObjectID,
         require: true
     },

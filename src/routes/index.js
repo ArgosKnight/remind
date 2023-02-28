@@ -49,22 +49,22 @@ router.get('/api/prom-preci', (req,res)=>{
 })
 
 
-//mostrar por Status
-router.get('/api/products/status', (req,res)=>{
-    [
-        {
-            $match:{
-                isActive: true
-            }
-        }
-    ], (err,data)=>{
-        if(!err){   
-            res.status(200).json(({code:200, message:"PROMEDIO OBTENIDO", data}))
+/* //mostrar por Status
+router.get('/api/status', (req,res)=>{
+    //de la tabla Products, uso el find para buscar informacion
+    Product.find({
+
+        //aclaro que la informacion que busco es todo aquella que tenga esta condicion, el estado sea activo
+        isActive: true
+
+    }, (err, data)=>{
+        if(!err){
+            res.status(200).json(({code:200, message:"SHOWING ALL THE ACTIVE PRODCUTS", data}))
         }else{
             console.log(err)
         }
-    }
-})
+    })
+}) */
 
 
 //POST
@@ -88,7 +88,7 @@ router.post('/api/products/add', (req,res)=>{
 
 //PULL
 //:id (editar mediante ID algo dentro de mi tabla)
-router.put(' ', (req,res)=>{
+router.put('/api/products/edit/:id', (req,res)=>{
     const x = {
         name: req.body.name,
         brand: req.body.brand,
