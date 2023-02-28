@@ -15,13 +15,8 @@ connectDB();
 
 
 //RUTAS ! 
-//get
+
 app.use('/products', require('./src/routes/index'))
-//get:id
-
-//post
-
-
 
 
 

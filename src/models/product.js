@@ -3,30 +3,36 @@ const mongoose = require('mongoose');
 
 //Schema
 const Product = mongoose.model('Product',{
-    id:{
+    _id:{
         type: ObjectID,
         require: true
     },
-    name:{
+    name:{  
         type: String
     },
-    brand:{
+    brand:{ 
+        type: String 
+     },
+    bardCode:{ 
         type: String
     },
-    bardCode:{
+    description:{ 
         type: String
-    },
-    description:{
-        type: String
-    },
+     },
     Keywords:{
-        type: Array
+        type: Array 
     },
     createAt:{
-        type: Date
+         type: Date
     },
-    uodateAt:{
-        type:Date
+    updateAt:{ 
+        type: Date 
+    },
+    price:{ 
+        type: Number
+    },
+    isActive:{
+        type: Boolean
     }
 })
 

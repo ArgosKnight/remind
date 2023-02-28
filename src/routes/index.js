@@ -3,7 +3,9 @@ const router = express.Router()
 
 const { Product } = require ('../models/product')
 
-//Get (mostrar todo)
+
+// GETS 
+//(mostrar todo)
 router.get('/api/products', (req,res)=>{
     Product.find({}, (err,data)=>{
         if(!err){
@@ -13,8 +15,7 @@ router.get('/api/products', (req,res)=>{
         }
     })
 })
-
-//GET:id (mostrar por id)
+//:id (mostrar por id)
 router.get('/api/products/:id', (req,res)=>{
     Product.findById(req.params.id,(err,data)=>{
         if(!err){
@@ -26,7 +27,48 @@ router.get('/api/products/:id', (req,res)=>{
 })
 
 
-//POST (agregar)
+//Recibir el promedio de los precios
+router.get('/api/prom-preci', (req,res)=>{
+    Product.aggregate([
+        {
+          '$group': {
+            '_id': '', 
+            'avgQuantity': {
+              '$avg': '$price'
+            }
+          }
+        }
+      ],(err, $avg)=>{
+        if(!err){   
+            res.status(200).json(({code:200, message:"PROMEDIO OBTENIDO", $avg}))
+        }else{
+            console.log(err)
+        }
+      }
+      )
+})
+
+
+//mostrar por Status
+router.get('/api/products/status', (req,res)=>{
+    [
+        {
+            $match:{
+                isActive: true
+            }
+        }
+    ], (err,data)=>{
+        if(!err){   
+            res.status(200).json(({code:200, message:"PROMEDIO OBTENIDO", data}))
+        }else{
+            console.log(err)
+        }
+    }
+})
+
+
+//POST
+//agregar una nueva informacion
 router.post('/api/products/add', (req,res)=>{
     const prod= new Product({
         name: req.body.name,
@@ -35,15 +77,18 @@ router.post('/api/products/add', (req,res)=>{
         description: req.body.description,
         keywords: req.body.keywords,
         createAt: req.body.createAt,
-        updateAt: req.body.updateAt
+        updateAt: req.body.updateAt,
     });
     prod.save((err, data)=>{
-        res.status(200).json({code: 200, message: 'PRODUCTO CORRECTAMENTE AGREGADO', addProducts:data})
+        res.status(200).json({code: 200, message: 'PRODUCTO CORRECTAMENTE AGREGADO', addProduct:data})
     });
 })
 
-//PULL:id (editar)
- router.put('/api/products/edit/:id', (req,res)=>{
+
+
+//PULL
+//:id (editar mediante ID algo dentro de mi tabla)
+router.put(' ', (req,res)=>{
     const x = {
         name: req.body.name,
         brand: req.body.brand,
@@ -55,15 +100,44 @@ router.post('/api/products/add', (req,res)=>{
     };
     Product.findByIdAndUpdate(req.params.id, { $set:x}, {new:true}, (err,data)=>{
         if(!err){
-            res.status(200).json({code:200, message: 'Producto actualizado, modificar la fecha de actualizacion manualmente!'})
+            res.status(200).json({code:200, message: 'Producto actualizado, modificar la fecha de actualizacion manualmente!', updateProduct:data})
         }else{
             console.log(err)
         }
     })
- })
+})
+
+//agregamos precio
+router.put('/api/products/:id/price', (req,res)=>{
+    const p = {
+        price: req.body.price
+    };
+    Product.findByIdAndUpdate(req.params.id, { $set:p}, {new:true}, (err,data)=>{
+        if(!err){
+            res.status(200).json({code:200, message: 'Precio agregado correctamente !', updateProduct:data})
+        }else{
+            console.log(err)
+        }
+    })
+})
+
+//agregamos estado
+router.put('/api/products/:id/status',(req,res)=>{
+    const d = {
+        isActive: req.body.isActive
+    };
+    Product.findByIdAndUpdate(req.params.id, { $set:d}, {new: true}, (err, data)=>{
+        if(!err){
+            res.status(200).json({code:200, message:'Status agregado correctamente', updateProduct:data})
+        }else{
+            console.log(err)
+        }
+    })
+})
 
 
-//Delete (eliminar por id)
+//DELETE
+//eliminar por id)
 router.delete('/api/products/:id', (req, res)=>{
     Product.findByIdAndDelete(req.params.id, (err,data)=>{
         if(!err){
@@ -71,7 +145,6 @@ router.delete('/api/products/:id', (req, res)=>{
         }
     })
 })
-
 
 
 module.exports = router;
