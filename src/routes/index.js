@@ -184,13 +184,16 @@ router.delete('/api/products/:id', (req, res)=>{
     //Esto lo que hace es mostrame Categoria y dentro del ObjectID.Product, me mostrara todo lo que este dentro del ID de Producto
     
 router.get('/api/categria', (req,res)=>{
-      Categoria.find({}, (err,data)=>{
-          if(!err){
-              res.send(data)
-          }else{
-              console.log(err)
-          }
-      })
+    Categoria.find({}).populate({
+        path: 'products',
+        match: { CategoryId: { $ne: null } }
+      }).exec((err, categorias) => {
+        if (!err) {
+          res.send(categorias)
+        } else {
+          console.log(err);
+        }
+      });
     }
 )
 
