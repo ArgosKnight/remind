@@ -1,4 +1,6 @@
 const express = require('express')
+const { Status } = require('git')
+const { Categoria } = require('../models/categoria')
 const router = express.Router()
 
 const { Product } = require ('../models/product')
@@ -6,15 +8,32 @@ const { Product } = require ('../models/product')
 
 // GETS 
 //(mostrar todo)
-router.get('/api/products', (req,res)=>{
-    Product.find({}, (err,data)=>{
-        if(!err){
-            res.send(data)
-        }else{
+//  router.get('/api/products', (req,res)=>{
+//      Product.find({}, (err,data)=>{
+//          if(!err){
+//              res.send(data)
+//          }else{
+//              console.log(err)
+//          }
+//      })
+// })
+
+//mostar mediante Query todo lo que sea true
+router.get('/api/products/',(req,res)=>{
+    Product.find({
+        isActive: true      
+    }, (req,res)=>{
+        if (!err) {
+            //SI NO HAY ERRORES QUIERO QUE HAGA ESTO ENTONCES 
+            //implementamos el query
+        } else {
             console.log(err)
         }
     })
 })
+
+
+
 //:id (mostrar por id)
 router.get('/api/products/:id', (req,res)=>{
     Product.findById(req.params.id,(err,data)=>{
@@ -124,7 +143,7 @@ router.put('/api/products/:id/price', (req,res)=>{
 //agregamos estado
 router.put('/api/products/:id/status',(req,res)=>{
     const d = {
-        isActive: req.body.isActive
+        isActive: req.query.isActive
     };
     Product.findByIdAndUpdate(req.params.id, { $set:d}, {new: true}, (err, data)=>{
         if(!err){
@@ -145,6 +164,37 @@ router.delete('/api/products/:id', (req, res)=>{
         }
     })
 })
+
+
+
+
+
+//EMPEZAMOS A TRABAJAR CON LOS MODELOS DE BASE DE DATOS RELACIONADOS POR ID 
+
+
+//get
+router.get('/api/categoria', (req,res)=>{
+    // Categoria.find({}, (res,data)=>{
+    //     if(!err){
+    //         res.send(data)
+    //     }else{
+    //         console.log(err)
+    //     }
+    // })
+
+
+    //Esto lo que hace es mostrame Categoria y dentro del ObjectID.Product, me mostrara todo lo que este dentro del ID de Producto
+    Categoria.find({},(err,data)=>{
+        Product.populate(Categoria,{path: "product"}, function(err,data){
+            res.status(200).send(data)
+        })
+    })
+})
+
+
+
+//post
+
 
 
 module.exports = router;

@@ -1,5 +1,7 @@
 const { ObjectID } = require('bson');
+const { Ref } = require('git');
 const mongoose = require('mongoose');
+const { CategorySchema } = require('./categoria');
 
 //Schema
 const Product = mongoose.model('Product',{
@@ -33,6 +35,9 @@ const Product = mongoose.model('Product',{
     },
     isActive:{
         type: Boolean
+    },
+    category:{
+        type: CategorySchema
     }
 })
 
