@@ -1,3 +1,4 @@
+const { query } = require('express')
 const express = require('express')
 const { Status } = require('git')
 const { Categoria } = require('../models/categoria')
@@ -18,35 +19,45 @@ const { Product } = require ('../models/product')
 //      })
 // })
 
-/* //mostrar por Status
-router.get('/api/status', (req,res)=>{
-    //de la tabla Products, uso el find para buscar informacion
-    Product.find({
+// //mostrar por Status
+// router.get('/api/status', (req,res)=>{
+//     //de la tabla Products, uso el find para buscar informacion
+//     Product.find({
 
-        //aclaro que la informacion que busco es todo aquella que tenga esta condicion, el estado sea activo
-        isActive: true
+//         //aclaro que la informacion que busco es todo aquella que tenga esta condicion, el estado sea activo
+//         isActive: true
 
-    }, (err, data)=>{
-        if(!err){
-            res.status(200).json(({code:200, message:"SHOWING ALL THE ACTIVE PRODCUTS", data}))
-        }else{
-            console.log(err)
-        }
-    })
-}) */
+//     }, (err, data)=>{
+//         if(!err){
+//             res.status(200).json(({code:200, message:"SHOWING ALL THE ACTIVE PRODCUTS", data}))
+//         }else{
+//             console.log(err)
+//         }
+//     })
+// }) 
 
 //mostar mediante Query todo lo que sea true
-router.get('/api/products/',(req,res)=>{
-    const { isActive = true} = req.query;
-    Product.find({
-        isActive: isActive
-    }, (err,data)=>{
-        if(!err){
-            res.send(data)
-        }else{
-            console.log(err)
+router.get('/api/products', async (req,res)=>{
+    // const { isActive = true} = req.query;
+    // Product.find({
+    //     isActive: isActive
+    // }, (err,data)=>{
+    //     if(!err){
+    //         res.send(data)
+    //     }else{
+    //         console.log(err)
+    //     }
+    // })
+    try {
+        let condition = {}
+        if(req.query.isActive === 'true') {
+            condition.isActive = true
         }
-    })
+        const product = await Product.find(condition)
+        res.json(product)
+    } catch (err) {
+        console.error(err)
+    }
 })
 
 
@@ -183,11 +194,8 @@ router.delete('/api/products/:id', (req, res)=>{
 
     //Esto lo que hace es mostrame Categoria y dentro del ObjectID.Product, me mostrara todo lo que este dentro del ID de Producto
     
-router.get('/api/categria', (req,res)=>{
-    Categoria.find({}).populate({
-        path: 'products',
-        match: { CategoryId: { $ne: null } }
-      }).exec((err, categorias) => {
+router.get('/api/categoria', (req,res)=>{
+    Categoria.find({}).exec((err, categorias) => {
         if (!err) {
           res.send(categorias)
         } else {
