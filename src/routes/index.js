@@ -52,6 +52,8 @@ router.get('/api/products', async (req,res)=>{
         let condition = {}
         if(req.query.isActive === 'true') {
             condition.isActive = true
+        }else if(req.query.isActive === 'false'){
+            condition.isActive = false
         }
         const product = await Product.find(condition)
         res.json(product)
@@ -183,17 +185,19 @@ router.delete('/api/products/:id', (req, res)=>{
 
 //get
 //router('/api/categoria', (req,res)=>{
-    // Categoria.find({}, (res,data)=>{
-    //     if(!err){
-    //         res.send(data)
-    //     }else{
-    //         console.log(err)
-    //     }
-    // })
+// Categoria.find({}, (res,data)=>{
+//     if(!err){
+//         res.send(data)
+//     }else{
+//         console.log(err)
+//     }
+// })
 
 
-    //Esto lo que hace es mostrame Categoria y dentro del ObjectID.Product, me mostrara todo lo que este dentro del ID de Producto
-    
+
+
+
+//Esto lo que hace es mostrame Categoria y dentro del ObjectID.Product, me mostrara todo lo que este dentro del ID de Producto 
 router.get('/api/categoria', (req,res)=>{
     Categoria.find({}).exec((err, categorias) => {
         if (!err) {
@@ -205,11 +209,15 @@ router.get('/api/categoria', (req,res)=>{
     }
 )
 
-
-
-
 //post
-
+router.post('/api/categoria/add', (req,res)=>{
+    const cat= new Categoria({
+        name: req.body.name
+    });
+    cat.save((err, data)=>{
+        res.status(200).json({code: 200, message: 'CATEGORIA CORRECTAMENTE AGREGADO', addCategoria:data})
+    });
+})
 
 
 module.exports = router;
