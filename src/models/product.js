@@ -1,5 +1,4 @@
 const { ObjectID } = require('bson');
-const { Ref } = require('git');
 const mongoose = require('mongoose');
 const { CategorySchema } = require('./categoria');
 
@@ -36,7 +35,7 @@ const Product = mongoose.model('Product',{
     isActive:{
         type: Boolean
     },
-    categoryId:{
+    category:{
         type: CategorySchema
     }
 })

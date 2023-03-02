@@ -8,6 +8,7 @@ const { Product } = require ('../models/product')
 
 
 // GETS 
+/*
 //(mostrar todo)
 //  router.get('/api/products', (req,res)=>{
 //      Product.find({}, (err,data)=>{
@@ -18,15 +19,13 @@ const { Product } = require ('../models/product')
 //          }
 //      })
 // })
-
+//////////////////////////////////////////////////
 // //mostrar por Status
 // router.get('/api/status', (req,res)=>{
 //     //de la tabla Products, uso el find para buscar informacion
 //     Product.find({
-
 //         //aclaro que la informacion que busco es todo aquella que tenga esta condicion, el estado sea activo
 //         isActive: true
-
 //     }, (err, data)=>{
 //         if(!err){
 //             res.status(200).json(({code:200, message:"SHOWING ALL THE ACTIVE PRODCUTS", data}))
@@ -35,7 +34,8 @@ const { Product } = require ('../models/product')
 //         }
 //     })
 // }) 
-
+*/
+//////////////////////////////////////////////////
 //mostar mediante Query todo lo que sea true
 router.get('/api/products', async (req,res)=>{
     // const { isActive = true} = req.query;
@@ -62,8 +62,6 @@ router.get('/api/products', async (req,res)=>{
     }
 })
 
-
-
 //:id (mostrar por id)
 router.get('/api/products/:id', (req,res)=>{
     Product.findById(req.params.id,(err,data)=>{
@@ -75,8 +73,8 @@ router.get('/api/products/:id', (req,res)=>{
     })
 })
 
-
 //Recibir el promedio de los precios
+//usamos una herramienta de mongoose $AVG de aggregation la cual nos permitra agrupar y sacar el promedio de la informacion pedida.
 router.get('/api/prom-preci', (req,res)=>{
     Product.aggregate([
         {
@@ -96,6 +94,8 @@ router.get('/api/prom-preci', (req,res)=>{
       }
       )
 })
+
+
 
 //POST
 //agregar una nueva informacion
@@ -119,14 +119,17 @@ router.post('/api/products/add', (req,res)=>{
 //PULL
 //:id (editar mediante ID algo dentro de mi tabla)
 router.put('/api/products/edit/:id', (req,res)=>{
-    const x = {
+    const x = { 
         name: req.body.name,
         brand: req.body.brand,
         bardCode: req.body.bardCode,
         description: req.body.description,
         keywords: req.body.keywords,
         createAt: req.body.createAt,
-        updateAt: req.body.updateAt
+        updateAt: req.body.updateAt,
+        price: req.body.price,
+        isActive: req.body.isActive,
+        catagory: req.body.catagory
     };
     Product.findByIdAndUpdate(req.params.id, { $set:x}, {new:true}, (err,data)=>{
         if(!err){
@@ -165,6 +168,46 @@ router.put('/api/products/:id/status',(req,res)=>{
     })
 })
 
+//agreganos categoria
+router.put('/api/products/:id/category', (req,res)=>{
+    /*
+    // const { productId, categoryId } = req.params;
+
+    //  Product.findByIdAndUpdate(
+    //    productId,
+    //    { categoryId },
+    //    { new: true },
+    //    (err, updatedProduct) => {
+    //      if (err) {
+    //        console.error(err);
+    //        res.status(500).json({ error: 'Failed to add category to product' });
+    //      } else if (!updatedProduct) {
+    //        res.status(404).json({ error: 'Product not found' });
+    //      } else {
+    //        res.json({
+    //          message: 'Category added to product successfully',
+    //      updatedProduct,
+    //        });
+    //      }
+    //    },
+    // );
+    // const categoriaObj = {
+    //     "name": req.body.name
+    //   };
+
+    //   console.log()
+    //   Product.findByIdAndUpdate(req.params.id, {$set: {category:categoriaObj}}, {new: true}, (err, data) => {
+    //     if (!err) {
+    //       res.status(200).json({code: 200, message: "CATEGORY ADDED CORRECTLY", updatedProduct: data})
+    //     } else {
+    //       console.log(err);
+    //       res.status(500).json({code: 500, message: "INTERNAL SERVER ERROR"})
+    //     }
+    //   });*/
+
+
+})
+
 
 //DELETE
 //eliminar por id)
@@ -178,27 +221,9 @@ router.delete('/api/products/:id', (req, res)=>{
 
 
 
-
-
-//EMPEZAMOS A TRABAJAR CON LOS MODELOS DE BASE DE DATOS RELACIONADOS POR ID 
-
-
-//get
-//router('/api/categoria', (req,res)=>{
-// Categoria.find({}, (res,data)=>{
-//     if(!err){
-//         res.send(data)
-//     }else{
-//         console.log(err)
-//     }
-// })
-
-
-
-
-
+//GET Y POST DE CATEGORIA!
 //Esto lo que hace es mostrame Categoria y dentro del ObjectID.Product, me mostrara todo lo que este dentro del ID de Producto 
-router.get('/api/categoria', (req,res)=>{
+router.get('/api/categoria/show', (req,res)=>{
     Categoria.find({}).exec((err, categorias) => {
         if (!err) {
           res.send(categorias)
@@ -209,6 +234,17 @@ router.get('/api/categoria', (req,res)=>{
     }
 )
 
+//:id (mostrar por id)
+router.get('/api/category/:id', (req,res)=>{
+    Categoria.findById(req.params.id,(err,data)=>{
+        if(!err){
+            res.send(data);
+        }else{
+            console.log(err);
+        }
+    })
+})
+
 //post
 router.post('/api/categoria/add', (req,res)=>{
     const cat= new Categoria({
@@ -218,6 +254,8 @@ router.post('/api/categoria/add', (req,res)=>{
         res.status(200).json({code: 200, message: 'CATEGORIA CORRECTAMENTE AGREGADO', addCategoria:data})
     });
 })
+
+
 
 
 module.exports = router;
