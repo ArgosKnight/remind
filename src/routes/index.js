@@ -118,27 +118,69 @@ router.post('/api/products/add', (req,res)=>{
 
 //PULL
 //:id (editar mediante ID algo dentro de mi tabla)
-router.put('/api/products/edit/:id', (req,res)=>{
-    const x = { 
-        name: req.body.name,
-        brand: req.body.brand,
-        bardCode: req.body.bardCode,
-        description: req.body.description,
-        keywords: req.body.keywords,
-        createAt: req.body.createAt,
-        updateAt: req.body.updateAt,
-        price: req.body.price,
-        isActive: req.body.isActive,
-        catagory: req.body.catagory
-    };
-    Product.findByIdAndUpdate(req.params.id, { $set:x}, {new:true}, (err,data)=>{
-        if(!err){
-            res.status(200).json({code:200, message: 'Producto actualizado, modificar la fecha de actualizacion manualmente!', updateProduct:data})
-        }else{
-            console.log(err)
-        }
-    })
-})
+/*
+// router.put('/api/products/edit/:id', (req,res)=>{
+//     const x = { 
+//         name: req.body.name,
+//         brand: req.body.brand,
+//         bardCode: req.body.bardCode,
+//         description: req.body.description,
+//         keywords: req.body.keywords,
+//         createAt: req.body.createAt,
+//         updateAt: req.body.updateAt,
+//         price: req.body.price,
+//         isActive: req.body.isActive,
+//         category: null
+//     };
+
+//     if (req.body.categoryId) {
+//         x.category = req.body.catagoryId;
+//       }
+    
+//       Product.findByIdAndUpdate(req.params.id, { $set: x }, { new: true }, (err, data) => {
+//         if (!err) {
+//           res.status(200).json({ code: 200, message: 'Producto actualizado, modificar la fecha de actualizacion manualmente!', updateProduct: data })
+//         } else {
+//           console.log(err)
+//         }
+//       })
+// })
+*/
+router.put('/api/products/edit/:id', async (req, res) => {
+    //Buscamos nuestro obejeto mediante la ID 
+    try {
+      const categoryId = req.body.categoryId;
+      //REVISAR ESTA PARTE ? 
+      let category = null;
+      
+      if (categoryId) {
+        category = await Categoria.findById(categoryId);
+        // if (!category) {
+        //   category = new Categoria({ name: req.body.categoryName });
+        //   await category.save();
+        // }
+      }
+  
+      const product = await Product.findById(req.params.id);
+      product.name = req.body.name;
+      product.brand = req.body.brand;
+      product.bardCode = req.body.bardCode;
+      product.description = req.body.description;
+      product.keywords = req.body.keywords;
+      product.createAt = req.body.createAt;
+      product.updateAt = req.body.updateAt;
+      product.price = req.body.price;
+      product.isActive = req.body.isActive;
+      product.category = category;
+      await product.save();
+      console.log(categoryId)
+      res.status(200).json({ code: 200, message: 'Producto actualizado, modificar la fecha de actualizacion manualmente!', updateProduct: product });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ code: 500, message: 'Error interno del servidor' });
+    }
+  });
+  
 
 //agregamos precio
 router.put('/api/products/:id/price', (req,res)=>{
@@ -168,11 +210,12 @@ router.put('/api/products/:id/status',(req,res)=>{
     })
 })
 
-//agreganos categoria
-router.put('/api/products/:id/category', (req,res)=>{
-    /*
-    // const { productId, categoryId } = req.params;
 
+/*
+//agreganos categoria
+router.put('/api/products/:id/category', async (req,res)=>{
+
+    // const { productId, categoryId } = req.params;
     //  Product.findByIdAndUpdate(
     //    productId,
     //    { categoryId },
@@ -191,22 +234,43 @@ router.put('/api/products/:id/category', (req,res)=>{
     //      }
     //    },
     // );
+    ///////////////////////////////////////////////  ///////////////////////////////////////////////
     // const categoriaObj = {
-    //     "name": req.body.name
-    //   };
+    //      "name": req.body.name
+    //    };
 
-    //   console.log()
-    //   Product.findByIdAndUpdate(req.params.id, {$set: {category:categoriaObj}}, {new: true}, (err, data) => {
-    //     if (!err) {
-    //       res.status(200).json({code: 200, message: "CATEGORY ADDED CORRECTLY", updatedProduct: data})
-    //     } else {
-    //       console.log(err);
-    //       res.status(500).json({code: 500, message: "INTERNAL SERVER ERROR"})
-    //     }
-    //   });*/
-
+    //    console.log()
+    //    Product.findByIdAndUpdate(req.params.id, {$set: {category:categoriaObj}}, {new: true}, (err, data) => {
+    //      if (!err) {
+    //        res.status(200).json({code: 200, message: "CATEGORY ADDED CORRECTLY", updatedProduct: data})
+    //      } else {
+    //        console.log(err);
+    //        res.status(500).json({code: 500, message: "INTERNAL SERVER ERROR"})
+    //      }
+    //    });
+  ///////////////////////////////////////////////  ///////////////////////////////////////////////
+    try {
+        const categoria = await Categoria.findOne({ name: req.body.name });
+        if (!categoria) {
+          return res.status(404).json({ code: 404, message: "CATEGORY NOT FOUND" });
+        }
+        const updatedProduct = await Product.findByIdAndUpdate(
+          req.params.id,
+          { $set: { category: categoria._id } },
+          { new: true }
+        );
+        res.status(200).json({
+          code: 200,
+          message: "CATEGORY ADDED CORRECTLY",
+          updatedProduct
+        });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ code: 500, message: "INTERNAL SERVER ERROR" });
+      }
 
 })
+*/
 
 
 //DELETE

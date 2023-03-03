@@ -36,7 +36,7 @@ const Product = mongoose.model('Product',{
         type: Boolean
     },
     category:{
-        type: CategorySchema
+        type: CategorySchema,
     }
 })
 
