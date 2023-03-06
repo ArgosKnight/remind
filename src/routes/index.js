@@ -148,46 +148,77 @@ router.post('/api/products/add', (req,res)=>{
 // })
 */
 router.put('/api/products/edit/:id', async (req, res) => {
-    //Buscamos nuestro obejeto mediante la ID 
-    try {
-        const categoryId = req.body.categoryId;
-        //REVISAR ESTA PARTE ? 
-        let category = null;
+/*
+//     //Buscamos nuestro obejeto mediante la ID 
+//     try {
+//         const categoryId = req.body.categoryId;
+//         //REVISAR ESTA PARTE ? 
+//         let category = null;
        
-        //ESTO CODIGO SIRVE PARA GUARDAR LA INFORMACION COMO UNA VARIABLE MAS -> CODIGO INNECESARIO PARA ESTO QUE SE ESTA REALIZANDO
-        // if (!category) {
-        //   category = new Categoria({ name: req.body.categoryName });
-        //   await category.save();
-        // }
-        if (categoryId) {
-            const foundCategory = await Categoria.findById(categoryId);
-            if (foundCategory) {
-              category = foundCategory;
-            } else {
-              category = null;
-            }
-          } 
-    
-   
-        const product = await Product.findById(req.params.id);
-        product.name = req.body.name;
-        product.brand = req.body.brand;
-        product.bardCode = req.body.bardCode;
-        product.description = req.body.description;
-        product.keywords = req.body.keywords;
-        product.createAt = req.body.createAt;
-        product.updateAt = req.body.updateAt;
-        product.price = req.body.price;
-        product.isActive = req.body.isActive;
-        product.category = category;
-        await product.save();
-        //console.log(categoryId)
-        res.status(200).json({ code: 200, message: 'Producto actualizado, modificar la fecha de actualizacion manualmente!', updateProduct: product });
+//         //ESTO CODIGO SIRVE PARA GUARDAR LA INFORMACION COMO UNA VARIABLE MAS -> CODIGO INNECESARIO PARA ESTO QUE SE ESTA REALIZANDO
+//         // if (!category) {
+//         //   category = new Categoria({ name: req.body.categoryName });
+//         //   await category.save();
+//         // }
+//         if (categoryId) {
+//             const foundCategory = await Categoria.findById(categoryId);
+//             if (foundCategory) {
+//               category = foundCategory;
+//             } else {
+//               category = null;
+//             }
+//           }   
+//         const product = await Product.findById(req.params.id);
+//         product.name = req.body.name;
+//         product.brand = req.body.brand;
+//         product.bardCode = req.body.bardCode;
+//         product.description = req.body.description;
+//         product.keywords = req.body.keywords;
+//         product.createAt = req.body.createAt;
+//         product.updateAt = req.body.updateAt;
+//         product.price = req.body.price;
+//         product.isActive = req.body.isActive;
+//         product.category = category;
+//         await product.save();
+//         //console.log(categoryId)
+//         res.status(200).json({ code: 200, message: 'Producto actualizado, modificar la fecha de actualizacion manualmente!', updateProduct: product });
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).json({ code: 500, message: 'Error interno del servidor' });
+//     }
+// });
+*/
+    try {
+      const { id } = req.params;
+      const { category } = req.body;
+  
+      // Verificar si la categoría existe
+      let categoryObj = null;
+      if (category) {
+        const existingCategory = await Category.findOne({ name: category });
+        if (existingCategory) {
+          categoryObj = existingCategory;
+        } else {
+          categoryObj = null;
+        }
+      }
+  
+      // Verificar si el producto existe
+      const product = await Product.findById(id);
+      if (!product) {
+        return res.status(404).json({ error: 'Producto no encontrado' });
+      }
+  
+      // Actualizar el producto con la categoría
+      product.category = categoryObj;
+      await product.save();
+  
+      res.status(200).json(product);
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ code: 500, message: 'Error interno del servidor' });
+      console.error(error);
+      res.status(500).json({ error: 'Ocurrió un error al actualizar el producto' });
     }
-});
+  });
   
 
 //agregamos precio
