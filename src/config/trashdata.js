@@ -3,22 +3,10 @@ const { Categoria } = require('../models/categoria')
 const router = express.Router()
 const mongoose = require('mongoose');
 
-const { Product } = require ('../models/product')
+const { Product } = require('../models/product')
 
 
 // Middleware para manejar errores
-router.use((error, req, res, next) => {
-    // console.log('entro',error);
-    // const status = error.statusCode || 500;
-    // const message = error.message || 'Error interno del servidor';
-    // res.status(status).json({ code: status, message: message });
-    if (err instanceof mongoose.Error.CastError) {
-        return res.status(400).json({ error: 'El ID proporcionado es inválido' });
-      } else {
-        console.error(err.stack);
-        return res.status(500).json({ error: 'Ocurrió un error interno en el servidor' });
-      }
-});
 
 // GETS 
 /*
@@ -50,25 +38,25 @@ router.use((error, req, res, next) => {
 */
 //////////////////////////////////////////////////
 //mostar mediante Query todo lo que sea true
-router.get('/api/products', async (req,res)=>{
-   
-/*
-    // const { isActive = true} = req.query;
-    // Product.find({
-    //     isActive: isActive
-    // }, (err,data)=>{
-    //     if(!err){
-    //         res.send(data)
-    //     }else{
-    //         console.log(err)
-    //     }
-    // })
-*/
+router.get('/api/products', async (req, res) => {
+
+    /*
+        // const { isActive = true} = req.query;
+        // Product.find({
+        //     isActive: isActive
+        // }, (err,data)=>{
+        //     if(!err){
+        //         res.send(data)
+        //     }else{
+        //         console.log(err)
+        //     }
+        // })
+    */
     try {
         let condition = {}
-        if(req.query.isActive === 'true') {
+        if (req.query.isActive === 'true') {
             condition.isActive = true
-        }else if(req.query.isActive === 'false'){
+        } else if (req.query.isActive === 'false') {
             condition.isActive = false
         }
         const product = await Product.find(condition)
@@ -79,11 +67,11 @@ router.get('/api/products', async (req,res)=>{
 })
 
 //:id (mostrar por id)
-router.get('/api/products/:id', (req,res)=>{
-    Product.findById(req.params.id,(err,data)=>{
-        if(!err){
+router.get('/api/products/:id', (req, res) => {
+    Product.findById(req.params.id, (err, data) => {
+        if (!err) {
             res.send(data);
-        }else{
+        } else {
             console.log(err);
         }
     })
@@ -91,31 +79,31 @@ router.get('/api/products/:id', (req,res)=>{
 
 //Recibir el promedio de los precios
 //usamos una herramienta de mongoose $AVG de aggregation la cual nos permitra agrupar y sacar el promedio de la informacion pedida.
-router.get('/api/prom-preci', (req,res)=>{
+router.get('/api/prom-preci', (req, res) => {
     Product.aggregate([
         {
-          '$group': {
-            '_id': '', 
-            'avgQuantity': {
-              '$avg': '$price'
+            '$group': {
+                '_id': '',
+                'avgQuantity': {
+                    '$avg': '$price'
+                }
             }
-          }
         }
-      ],(err, $avg)=>{
-        if(!err){   
-            res.status(200).json(({code:200, message:"PROMEDIO OBTENIDO", $avg}))
-        }else{
+    ], (err, $avg) => {
+        if (!err) {
+            res.status(200).json(({ code: 200, message: "PROMEDIO OBTENIDO", $avg }))
+        } else {
             console.log(err)
         }
-      }
-      )
+    }
+    )
 })
 
 
 //POST
 //agregar una nueva informacion
-router.post('/api/products/add', (req,res)=>{
-    const prod= new Product({
+router.post('/api/products/add', (req, res) => {
+    const prod = new Product({
         name: req.body.name,
         brand: req.body.brand,
         bardCode: req.body.bardCode,
@@ -126,8 +114,8 @@ router.post('/api/products/add', (req,res)=>{
         prrice: req.body.price,
         isActive: req.body.isActive
     });
-    prod.save((err, data)=>{
-        res.status(200).json({code: 200, message: 'PRODUCTO CORRECTAMENTE AGREGADO', addProduct:data})
+    prod.save((err, data) => {
+        res.status(200).json({ code: 200, message: 'PRODUCTO CORRECTAMENTE AGREGADO', addProduct: data })
     });
 })
 
@@ -221,7 +209,7 @@ router.put('/api/products/edit/:id', async (req, res, next) => {
             } else {
                 category = null;
             }
-        }   
+        }
         const product = await Product.findById(req.params.id);
         product.name = req.body.name;
         product.brand = req.body.brand;
@@ -234,26 +222,26 @@ router.put('/api/products/edit/:id', async (req, res, next) => {
         product.isActive = req.body.isActive;
         product.category = category;
         await product.save();
-    
+
         res.status(200).json({ code: 200, message: 'Producto actualizado, modificar la fecha de actualizacion manualmente!', updateProduct: product });
     } catch (error) {
-    //     if (error instanceof mongoose.Error.CastError) {
-    //         const newError = new Error('El ID proporcionado no es válido');
-    //         newError.statusCode = 400;
-    //         next(newError);
-    //       } else {
-    //         next(error);
-    //       }
-    // }
-        // Pasamos el error al siguiente middleware o al controlador
         if (error instanceof mongoose.Error.CastError) {
-        error.message = 'ID del producto inválido';
-        error.statusCode = 400;
-        return res.status(error.statusCode).json({ code: error.statusCode, message: error.message });
-
-      }
-      next(error);
+            const newError = new Error('El ID proporcionado no es válido');
+            newError.statusCode = 400;
+            next(newError);
+        } else {
+            next(error);
+        }
     }
+    //     // Pasamos el error al siguiente middleware o al controlador
+    //     if (error instanceof mongoose.Error.CastError) {
+    //     error.message = 'ID del producto inválido';
+    //     error.statusCode = 400;
+    //     return res.status(error.statusCode).json({ code: error.statusCode, message: error.message });
+
+    //   }
+    //   next(error);
+    // }
 });
 
 /*     // try {
@@ -285,28 +273,28 @@ router.put('/api/products/edit/:id', async (req, res, next) => {
 });
 */
 //agregamos precio
-router.put('/api/products/:id/price', (req,res)=>{
+router.put('/api/products/:id/price', (req, res) => {
     const p = {
         price: req.body.price
     };
-    Product.findByIdAndUpdate(req.params.id, { $set:p}, {new:true}, (err,data)=>{
-        if(!err){
-            res.status(200).json({code:200, message: 'Precio agregado correctamente !', updateProduct:data})
-        }else{
+    Product.findByIdAndUpdate(req.params.id, { $set: p }, { new: true }, (err, data) => {
+        if (!err) {
+            res.status(200).json({ code: 200, message: 'Precio agregado correctamente !', updateProduct: data })
+        } else {
             console.log(err)
         }
     })
 })
 
 //agregamos estado
-router.put('/api/products/:id/status',(req,res)=>{
+router.put('/api/products/:id/status', (req, res) => {
     const d = {
         isActive: req.query.isActive
     };
-    Product.findByIdAndUpdate(req.params.id, { $set:d}, {new: true}, (err, data)=>{
-        if(!err){
-            res.status(200).json({code:200, message:'Status agregado correctamente', updateProduct:data})
-        }else{
+    Product.findByIdAndUpdate(req.params.id, { $set: d }, { new: true }, (err, data) => {
+        if (!err) {
+            res.status(200).json({ code: 200, message: 'Status agregado correctamente', updateProduct: data })
+        } else {
             console.log(err)
         }
     })
@@ -377,10 +365,10 @@ router.put('/api/products/:id/category', async (req,res)=>{
 
 //DELETE
 //eliminar por id)
-router.delete('/api/products/:id', (req, res)=>{
-    Product.findByIdAndDelete(req.params.id, (err,data)=>{
-        if(!err){
-            res.status(200).json({code:200, message:'user delete', deleteProduct: data})
+router.delete('/api/products/:id', (req, res) => {
+    Product.findByIdAndDelete(req.params.id, (err, data) => {
+        if (!err) {
+            res.status(200).json({ code: 200, message: 'user delete', deleteProduct: data })
         }
     })
 })
@@ -388,35 +376,35 @@ router.delete('/api/products/:id', (req, res)=>{
 
 //GET Y POST DE CATEGORIA!
 //Esto lo que hace es mostrame Categoria y dentro del ObjectID.Product, me mostrara todo lo que este dentro del ID de Producto 
-router.get('/api/categoria/show', (req,res)=>{
+router.get('/api/categoria/show', (req, res) => {
     Categoria.find({}).exec((err, categorias) => {
         if (!err) {
-          res.send(categorias)
+            res.send(categorias)
         } else {
-          console.log(err);
+            console.log(err);
         }
-      });
-    }
+    });
+}
 )
 
 //:id (mostrar por id)
-router.get('/api/category/:id', (req,res)=>{
-    Categoria.findById(req.params.id,(err,data)=>{
-        if(!err){
+router.get('/api/category/:id', (req, res) => {
+    Categoria.findById(req.params.id, (err, data) => {
+        if (!err) {
             res.send(data);
-        }else{
+        } else {
             console.log(err);
         }
     })
 })
 
 //post
-router.post('/api/categoria/add', (req,res)=>{
-    const cat= new Categoria({
+router.post('/api/categoria/add', (req, res) => {
+    const cat = new Categoria({
         name: req.body.name
     });
-    cat.save((err, data)=>{
-        res.status(200).json({code: 200, message: 'CATEGORIA CORRECTAMENTE AGREGADO', addCategoria:data})
+    cat.save((err, data) => {
+        res.status(200).json({ code: 200, message: 'CATEGORIA CORRECTAMENTE AGREGADO', addCategoria: data })
     });
 })
 
