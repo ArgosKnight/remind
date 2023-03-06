@@ -1,6 +1,4 @@
-const { query } = require('express')
 const express = require('express')
-const { Status } = require('git')
 const { Categoria } = require('../models/categoria')
 const router = express.Router()
 const mongoose = require('mongoose');
@@ -10,10 +8,16 @@ const { Product } = require ('../models/product')
 
 // Middleware para manejar errores
 router.use((error, req, res, next) => {
-    console.log(error);
-    const status = error.statusCode || 500;
-    const message = error.message || 'Error interno del servidor';
-    res.status(status).json({ code: status, message: message });
+    // console.log('entro',error);
+    // const status = error.statusCode || 500;
+    // const message = error.message || 'Error interno del servidor';
+    // res.status(status).json({ code: status, message: message });
+    if (err instanceof mongoose.Error.CastError) {
+        return res.status(400).json({ error: 'El ID proporcionado es inválido' });
+      } else {
+        console.error(err.stack);
+        return res.status(500).json({ error: 'Ocurrió un error interno en el servidor' });
+      }
 });
 
 // GETS 
@@ -48,7 +52,7 @@ router.use((error, req, res, next) => {
 //mostar mediante Query todo lo que sea true
 router.get('/api/products', async (req,res)=>{
    
-   /*
+/*
     // const { isActive = true} = req.query;
     // Product.find({
     //     isActive: isActive
@@ -59,7 +63,7 @@ router.get('/api/products', async (req,res)=>{
     //         console.log(err)
     //     }
     // })
-    */
+*/
     try {
         let condition = {}
         if(req.query.isActive === 'true') {
@@ -108,7 +112,6 @@ router.get('/api/prom-preci', (req,res)=>{
 })
 
 
-
 //POST
 //agregar una nueva informacion
 router.post('/api/products/add', (req,res)=>{
@@ -127,7 +130,6 @@ router.post('/api/products/add', (req,res)=>{
         res.status(200).json({code: 200, message: 'PRODUCTO CORRECTAMENTE AGREGADO', addProduct:data})
     });
 })
-
 
 
 //PULL
@@ -235,18 +237,13 @@ router.put('/api/products/edit/:id', async (req, res, next) => {
     
         res.status(200).json({ code: 200, message: 'Producto actualizado, modificar la fecha de actualizacion manualmente!', updateProduct: product });
     } catch (error) {
-        // Pasamos el error al siguiente middleware o al controlador
-        next(error);
         if (error instanceof mongoose.Error.CastError) {
-            // Si la excepción es causada por un ID inválido, enviamos una respuesta de error con el código 400 Bad Request
-            res.status(400).json({ code: 400, message: 'ID inválido' });
+            res.status(400).json({ code: 400, message: 'La ID proporcionada es inválida.' });
           } else {
-            // Si la excepción es causada por otra cosa, enviamos una respuesta de error genérica con el código 500 Internal Server Error
-            res.status(500).json({ code: 500, message: 'Error interno del servidor' });
+            next(error);
           }
-    }
+        }
 });
-
 
 /*     // try {
     //   const { id } = req.params;
@@ -305,6 +302,7 @@ router.put('/api/products/:id/status',(req,res)=>{
 })
 
 
+//Varios formas de agregar Categoria a Product
 /*
 //agreganos categoria
 router.put('/api/products/:id/category', async (req,res)=>{
@@ -328,11 +326,10 @@ router.put('/api/products/:id/category', async (req,res)=>{
     //      }
     //    },
     // );
-    ///////////////////////////////////////////////  ///////////////////////////////////////////////
+//////////////////////////////////////////////  ///////////////////////////////////////////////
     // const categoriaObj = {
     //      "name": req.body.name
     //    };
-
     //    console.log()
     //    Product.findByIdAndUpdate(req.params.id, {$set: {category:categoriaObj}}, {new: true}, (err, data) => {
     //      if (!err) {
@@ -342,7 +339,7 @@ router.put('/api/products/:id/category', async (req,res)=>{
     //        res.status(500).json({code: 500, message: "INTERNAL SERVER ERROR"})
     //      }
     //    });
-  ///////////////////////////////////////////////  ///////////////////////////////////////////////
+//////////////////////////////////////////////  ///////////////////////////////////////////////
     try {
         const categoria = await Categoria.findOne({ name: req.body.name });
         if (!categoria) {
@@ -376,7 +373,6 @@ router.delete('/api/products/:id', (req, res)=>{
         }
     })
 })
-
 
 
 //GET Y POST DE CATEGORIA!
