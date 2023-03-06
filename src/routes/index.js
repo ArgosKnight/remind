@@ -8,6 +8,14 @@ const mongoose = require('mongoose');
 const { Product } = require ('../models/product')
 
 
+// Middleware para manejar errores
+router.use((error, req, res, next) => {
+    console.log(error);
+    const status = error.statusCode || 500;
+    const message = error.message || 'Error interno del servidor';
+    res.status(status).json({ code: status, message: message });
+});
+
 // GETS 
 /*
 //(mostrar todo)
@@ -39,6 +47,8 @@ const { Product } = require ('../models/product')
 //////////////////////////////////////////////////
 //mostar mediante Query todo lo que sea true
 router.get('/api/products', async (req,res)=>{
+   
+   /*
     // const { isActive = true} = req.query;
     // Product.find({
     //     isActive: isActive
@@ -49,6 +59,7 @@ router.get('/api/products', async (req,res)=>{
     //         console.log(err)
     //     }
     // })
+    */
     try {
         let condition = {}
         if(req.query.isActive === 'true') {
@@ -109,6 +120,8 @@ router.post('/api/products/add', (req,res)=>{
         keywords: req.body.keywords,
         createAt: req.body.createAt,
         updateAt: req.body.updateAt,
+        prrice: req.body.price,
+        isActive: req.body.isActive
     });
     prod.save((err, data)=>{
         res.status(200).json({code: 200, message: 'PRODUCTO CORRECTAMENTE AGREGADO', addProduct:data})
@@ -147,80 +160,122 @@ router.post('/api/products/add', (req,res)=>{
 //       })
 // })
 */
-router.put('/api/products/edit/:id', async (req, res) => {
 /*
-//     //Buscamos nuestro obejeto mediante la ID 
-//     try {
-//         const categoryId = req.body.categoryId;
-//         //REVISAR ESTA PARTE ? 
-//         let category = null;
+router.put('/api/products/edit/:id', async (req, res) => {
+
+    //Buscamos nuestro obejeto mediante la ID 
+     try {
+         const categoryId = req.body.categoryId;
+         //REVISAR ESTA PARTE ? 
+         let category = null;
        
-//         //ESTO CODIGO SIRVE PARA GUARDAR LA INFORMACION COMO UNA VARIABLE MAS -> CODIGO INNECESARIO PARA ESTO QUE SE ESTA REALIZANDO
-//         // if (!category) {
-//         //   category = new Categoria({ name: req.body.categoryName });
-//         //   await category.save();
-//         // }
-//         if (categoryId) {
-//             const foundCategory = await Categoria.findById(categoryId);
-//             if (foundCategory) {
-//               category = foundCategory;
-//             } else {
-//               category = null;
-//             }
-//           }   
-//         const product = await Product.findById(req.params.id);
-//         product.name = req.body.name;
-//         product.brand = req.body.brand;
-//         product.bardCode = req.body.bardCode;
-//         product.description = req.body.description;
-//         product.keywords = req.body.keywords;
-//         product.createAt = req.body.createAt;
-//         product.updateAt = req.body.updateAt;
-//         product.price = req.body.price;
-//         product.isActive = req.body.isActive;
-//         product.category = category;
-//         await product.save();
-//         //console.log(categoryId)
-//         res.status(200).json({ code: 200, message: 'Producto actualizado, modificar la fecha de actualizacion manualmente!', updateProduct: product });
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json({ code: 500, message: 'Error interno del servidor' });
-//     }
-// });
-*/
-    try {
-      const { id } = req.params;
-      const { category } = req.body;
-  
-      // Verificar si la categoría existe
-      let categoryObj = null;
-      if (category) {
-        const existingCategory = await Category.findOne({ name: category });
-        if (existingCategory) {
-          categoryObj = existingCategory;
+        //ESTO CODIGO SIRVE PARA GUARDAR LA INFORMACION COMO UNA VARIABLE MAS -> CODIGO INNECESARIO PARA ESTO QUE SE ESTA REALIZANDO
+         // if (!category) {
+         //   category = new Categoria({ name: req.body.categoryName });
+         //   await category.save();
+         // }
+         if (categoryId) {
+             const foundCategory = await Categoria.findById(categoryId);
+             if (foundCategory) {
+               category = foundCategory;
+             } else {
+               category = null;
+             }
+           }   
+         const product = await Product.findById(req.params.id);
+         product.name = req.body.name;
+         product.brand = req.body.brand;
+         product.bardCode = req.body.bardCode;
+         product.description = req.body.description;
+         product.keywords = req.body.keywords;
+         product.createAt = req.body.createAt;
+         product.updateAt = req.body.updateAt;
+         product.price = req.body.price;
+         product.isActive = req.body.isActive;
+         product.category = category;
+         await product.save();
+         //console.log(categoryId)
+         res.status(200).json({ code: 200, message: 'Producto actualizado, modificar la fecha de actualizacion manualmente!', updateProduct: product });
+     } catch (error) {
+        console.log(error);
+        if (error instanceof mongoose.Error.CastError) {
+          // Si la excepción es causada por un ID inválido, enviamos una respuesta de error con el código 400 Bad Request
+          res.status(400).json({ code: 400, message: 'ID inválido' });
         } else {
-          categoryObj = null;
+          // Si la excepción es causada por otra cosa, enviamos una respuesta de error genérica con el código 500 Internal Server Error
+          res.status(500).json({ code: 500, message: 'Error interno del servidor' });
         }
       }
-  
-      // Verificar si el producto existe
-      const product = await Product.findById(id);
-      if (!product) {
-        return res.status(404).json({ error: 'Producto no encontrado' });
-      }
-  
-      // Actualizar el producto con la categoría
-      product.category = categoryObj;
-      await product.save();
-  
-      res.status(200).json(product);
+*/
+router.put('/api/products/edit/:id', async (req, res, next) => {
+    //Buscamos nuestro obejeto mediante la ID 
+    try {
+        const categoryId = req.body.categoryId;
+        let category = null;
+        if (categoryId) {
+            const foundCategory = await Categoria.findById(categoryId);
+            if (foundCategory) {
+                category = foundCategory;
+            } else {
+                category = null;
+            }
+        }   
+        const product = await Product.findById(req.params.id);
+        product.name = req.body.name;
+        product.brand = req.body.brand;
+        product.bardCode = req.body.bardCode;
+        product.description = req.body.description;
+        product.keywords = req.body.keywords;
+        product.createAt = req.body.createAt;
+        product.updateAt = req.body.updateAt;
+        product.price = req.body.price;
+        product.isActive = req.body.isActive;
+        product.category = category;
+        await product.save();
+    
+        res.status(200).json({ code: 200, message: 'Producto actualizado, modificar la fecha de actualizacion manualmente!', updateProduct: product });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Ocurrió un error al actualizar el producto' });
+        // Pasamos el error al siguiente middleware o al controlador
+        next(error);
+        if (error instanceof mongoose.Error.CastError) {
+            // Si la excepción es causada por un ID inválido, enviamos una respuesta de error con el código 400 Bad Request
+            res.status(400).json({ code: 400, message: 'ID inválido' });
+          } else {
+            // Si la excepción es causada por otra cosa, enviamos una respuesta de error genérica con el código 500 Internal Server Error
+            res.status(500).json({ code: 500, message: 'Error interno del servidor' });
+          }
     }
-  });
-  
+});
 
+
+/*     // try {
+    //   const { id } = req.params;
+    //   const { category } = req.body;
+    //   // Verificar si la categoría existe
+    //   let categoryObj = null;
+    //   if (category) {
+    //     const existingCategory = await Category.findOne({ name: category });
+    //     if (existingCategory) {
+    //       categoryObj = existingCategory;
+    //     } else {
+    //       categoryObj = null;
+    //     }
+    //   }
+    //   // Verificar si el producto existe
+    //   const product = await Product.findById(id);
+    //   if (!product) {
+    //     return res.status(404).json({ error: 'Producto no encontrado' });
+    //   }
+    //   // Actualizar el producto con la categoría
+    //   product.category = categoryObj;
+    //   await product.save();
+    //   res.status(200).json(product);
+    // } catch (error) {
+    //   console.error(error);
+    //   res.status(500).json({ error: 'Ocurrió un error al actualizar el producto' });
+    // } 
+});
+*/
 //agregamos precio
 router.put('/api/products/:id/price', (req,res)=>{
     const p = {
