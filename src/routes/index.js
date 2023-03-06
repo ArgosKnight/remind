@@ -237,12 +237,23 @@ router.put('/api/products/edit/:id', async (req, res, next) => {
     
         res.status(200).json({ code: 200, message: 'Producto actualizado, modificar la fecha de actualizacion manualmente!', updateProduct: product });
     } catch (error) {
+    //     if (error instanceof mongoose.Error.CastError) {
+    //         const newError = new Error('El ID proporcionado no es válido');
+    //         newError.statusCode = 400;
+    //         next(newError);
+    //       } else {
+    //         next(error);
+    //       }
+    // }
+        // Pasamos el error al siguiente middleware o al controlador
         if (error instanceof mongoose.Error.CastError) {
-            res.status(400).json({ code: 400, message: 'La ID proporcionada es inválida.' });
-          } else {
-            next(error);
-          }
-        }
+        error.message = 'ID del producto inválido';
+        error.statusCode = 400;
+        return res.status(error.statusCode).json({ code: error.statusCode, message: error.message });
+
+      }
+      next(error);
+    }
 });
 
 /*     // try {
@@ -408,8 +419,6 @@ router.post('/api/categoria/add', (req,res)=>{
         res.status(200).json({code: 200, message: 'CATEGORIA CORRECTAMENTE AGREGADO', addCategoria:data})
     });
 })
-
-
 
 
 module.exports = router;
