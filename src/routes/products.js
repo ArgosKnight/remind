@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const { Product } = require('../models/product')
 
 
-router.get('/products', async (req, res) => {
+router.get('/', async (req, res) => {
 
     try {
         let condition = {}
@@ -22,7 +22,7 @@ router.get('/products', async (req, res) => {
     }
 })
 
-router.get('/products/:id', (req, res) => {
+router.get('/:id', (req, res) => {
     Product.findById(req.params.id, (err, data) => {
         if (!err) {
             res.send(data);
@@ -52,7 +52,7 @@ router.get('/prom-preci', (req, res) => {
     )
 })
 
-router.post('/products/add', (req, res) => {
+router.post('/add', (req, res) => {
     const prod = new Product({
         name: req.body.name,
         brand: req.body.brand,
@@ -70,7 +70,7 @@ router.post('/products/add', (req, res) => {
 })
 
 
-router.put('/products/edit/:id', async (req, res, next) => {
+router.put('/edit/:id', async (req, res, next) => {
     try {
         const categoryId = req.body.categoryId;
         let category = null;
@@ -108,7 +108,7 @@ router.put('/products/edit/:id', async (req, res, next) => {
 
 });
 
-router.put('/products/:id/price', (req, res) => {
+router.put('/:id/price', (req, res) => {
     const p = {
         price: req.body.price
     };
@@ -122,7 +122,7 @@ router.put('/products/:id/price', (req, res) => {
 })
 
 
-router.put('/products/:id/status', (req, res) => {
+router.put('/:id/status', (req, res) => {
     const d = {
         isActive: req.query.isActive
     };
@@ -136,7 +136,7 @@ router.put('/products/:id/status', (req, res) => {
 })
 
 
-router.delete('/products/:id', (req, res) => {
+router.delete('/:id', (req, res) => {
     Product.findByIdAndDelete(req.params.id, (err, data) => {
         if (!err) {
             res.status(200).json({ code: 200, message: 'user delete', deleteProduct: data })

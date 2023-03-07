@@ -3,7 +3,7 @@ const { Categoria } = require('../models/categoria')
 const router = express.Router()
 
 
-router.get('/category', (req, res) => {
+router.get('/', (req, res) => {
     Categoria.find({}).exec((err, categorias) => {
         if (!err) {
             res.send(categorias)
@@ -14,7 +14,7 @@ router.get('/category', (req, res) => {
 }
 )
 
-router.get('/category/:id', (req, res) => {
+router.get('/:id', (req, res) => {
     Categoria.findById(req.params.id, (err, data) => {
         if (!err) {
             res.send(data);
@@ -24,7 +24,7 @@ router.get('/category/:id', (req, res) => {
     })
 })
 
-router.post('/category/add', (req, res) => {
+router.post('/add', (req, res) => {
     const cat = new Categoria({
         name: req.body.name
     });
